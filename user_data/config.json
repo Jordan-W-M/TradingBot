@@ -3,10 +3,7 @@
     "stake_currency": "USDT",
     "stake_amount": 20,
     "fiat_display_currency": "USD",
-    "timeframe": "1h",
     "dry_run": false,
-    "trailing-stop": false, ,
-    "cancel_open_orders_on_exit": false,
     "unfilledtimeout": {
         "buy": 10,
         "sell": 30,
