@@ -10,8 +10,8 @@
         "unit": "minutes"
     },
     "bid_strategy": {
-        "price_side": "bid",
-        "ask_last_balance": 1.0,
+        "price_side": "ask",
+        "ask_last_balance": 0.0,
         "use_order_book": true,
         "order_book_top": 1,
         "check_depth_of_market": {
