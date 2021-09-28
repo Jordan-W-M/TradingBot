@@ -18,15 +18,15 @@ class GodCard(IStrategy):
     # Minimal ROI designed for the strategy.
     # This attribute will be overridden if the config file contains "minimal_roi"
     minimal_roi = {
-        "0": 0.039,
-        "12": 0.025,
-        "60": 0.013,
-        "129": 0
+        "0": 0.192,
+        "37": 0.06,
+        "49": 0.022,
+        "60": 0
     }
 
     # Optimal stoploss designed for the strategy
     # This attribute will be overridden if the config file contains "stoploss"
-    stoploss = -0.317
+    stoploss = -0.345
 
     # Optimal timeframe for the strategy
     timeframe = '1h'
@@ -128,7 +128,7 @@ class GodCard(IStrategy):
         """
         dataframe.loc[
             (
-                    (dataframe['rsi'] > 14) &
+                    #(dataframe['rsi'] > 29) &
                     (dataframe['close'] < dataframe['bb_lowerband2']) &
                     (dataframe['volume'] > 0)
             ),
