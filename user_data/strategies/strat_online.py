@@ -1,7 +1,6 @@
-
-# --- Do not remove these libs ---
 from freqtrade.strategy import IStrategy
-from freqtrade.strategy import CategoricalParameter, IntParameter
+from freqtrade.strategy import (BooleanParameter, CategoricalParameter, DecimalParameter,
+                                IStrategy, IntParameter)
 from functools import reduce
 from pandas import DataFrame
 # --------------------------------
@@ -15,26 +14,30 @@ class GodCard(IStrategy):
 
     INTERFACE_VERSION = 2
 
-    # Minimal ROI designed for the strategy.
-    # This attribute will be overridden if the config file contains "minimal_roi"
-    minimal_roi = {
-        "0": 0.192,
-        "37": 0.06,
-        "49": 0.022,
-        "60": 0
-    }
+    timeframe = '15m'
+    # Define the parameter spaces
+    cooldown_lookback = IntParameter(2, 48, default=5, space="protection", optimize=True)
+    stop_duration = IntParameter(12, 200, default=5, space="protection", optimize=True)
+    use_stop_protection = BooleanParameter(default=True, space="protection", optimize=True)
 
-    # Optimal stoploss designed for the strategy
-    # This attribute will be overridden if the config file contains "stoploss"
-    stoploss = -0.345
+    @property
+    def protections(self):
+        prot = []
 
-    # Optimal timeframe for the strategy
-    timeframe = '1h'
+        prot.append({
+            "method": "CooldownPeriod",
+            "stop_duration_candles": self.cooldown_lookback.value
+        })
+        if self.use_stop_protection.value:
+            prot.append({
+                "method": "StoplossGuard",
+                "lookback_period_candles": 24,
+                "trade_limit": 4,
+                "stop_duration_candles": self.stop_duration.value,
+                "only_per_pair": False
+            })
 
-    # trailing stoploss
-    trailing_stop = False
-    trailing_stop_positive = 0.01
-    trailing_stop_positive_offset = 0.02
+        return prot
 
     # run "populate_indicators" only for new candle
     process_only_new_candles = False
@@ -52,43 +55,69 @@ class GodCard(IStrategy):
         'stoploss_on_exchange': False
     }
 
+    # Hyperopt parameters
+    buy_rsi = IntParameter(low=1, high=100, default=30, space='buy', optimize=True)
+    buy_rsi_enabled = CategoricalParameter([True, False], default=False, space="buy", optimize=True)
+    buy_trigger = CategoricalParameter(["bb_one", "bb_two", "bb_three"], default="bb_one", space="buy", optimize=True)
+
+    sell_rsi = IntParameter(low=1, high=100, default=70, space='sell', optimize=True)
+    sell_rsi_enabled = CategoricalParameter([True, False], default=False, space="sell", optimize=True)
+    sell_trigger = CategoricalParameter(["bb_low_sell", "bb_mid_sell", "bb_up_sell", "sarBoi"], default="bb_two_sell",  space="sell", optimize=True)
+
+    # Buy hyperspace params:
+    buy_params = {
+        "buy_rsi": 17,
+        "buy_rsi_enabled": False,
+        "buy_trigger": "bb_two",
+    }
+
+    # Sell hyperspace params:
+    sell_params = {
+        "sell_rsi": 41,
+        "sell_rsi_enabled": True,
+        "sell_trigger": "bb_low_sell",
+    }
+
+    # Protection hyperspace params:
+    protection_params = {
+        "cooldown_lookback": 6,
+        "stop_duration": 38,
+        "use_stop_protection": False,
+    }
+
+    # ROI table:
+    minimal_roi = {
+        "0": 0.283,
+        "85": 0.049,
+        "255": 0.028,
+        "493": 0
+    }
+
+    # Stoploss:
+    stoploss = -0.185
+
+    # Trailing stop:
+    trailing_stop = True
+    trailing_stop_positive = 0.225
+    trailing_stop_positive_offset = 0.261
+    trailing_only_offset_is_reached = True
 
     def informative_pairs(self):
-        """
-        Define additional, informative pair/interval combinations to be cached from the exchange.
-        These pair/interval combinations are non-tradeable, unless they are part
-        of the whitelist as well.
-        For more information, please consult the documentation
-        :return: List of tuples in the format (pair, interval)
-            Sample: return [("ETH/USDT", "5m"),
-                            ("BTC/USDT", "15m"),
-                            ]
-        """
+
         return []
 
     def populate_indicators(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        """
-        Adds several different TA indicators to the given DataFrame
-        Performance Note: For the best performance be frugal on the number of indicators
-        you are using. Let uncomment only the indicator you are using in your strategies
-        or your hyperopt configuration, otherwise you will waste your memory and CPU usage.
-        """
-
-
-
         # RSI
         dataframe['rsi'] = ta.RSI(dataframe)
-
 
         # SAR Parabol
         dataframe['sar'] = ta.SAR(dataframe)
 
-
         # Bollinger bands
-        bollinger1 = qtpylib.bollinger_bands(qtpylib.typical_price(dataframe), window=20, stds=1)
-        dataframe['bb_lowerband1'] = bollinger1['lower']
-        dataframe['bb_middleband1'] = bollinger1['mid']
-        dataframe['bb_upperband1'] = bollinger1['upper']
+        bollinger = qtpylib.bollinger_bands(qtpylib.typical_price(dataframe), window=20, stds=1)
+        dataframe['bb_lowerband'] = bollinger['lower']
+        dataframe['bb_middleband'] = bollinger['mid']
+        dataframe['bb_upperband'] = bollinger['upper']
 
         bollinger2 = qtpylib.bollinger_bands(qtpylib.typical_price(dataframe), window=20, stds=2)
         dataframe['bb_lowerband2'] = bollinger2['lower']
@@ -100,61 +129,62 @@ class GodCard(IStrategy):
         dataframe['bb_middleband3'] = bollinger3['mid']
         dataframe['bb_upperband3'] = bollinger3['upper']
 
-        # TEMA - Triple Exponential Moving Average
-        dataframe['tema'] = ta.TEMA(dataframe, timeperiod=9)
-
-        # Chart type
-        # ------------------------------------
-        # Heikinashi stategy
-        """
-        heikinashi = qtpylib.heikinashi(dataframe)
-        dataframe['ha_open'] = heikinashi['open']
-        dataframe['ha_close'] = heikinashi['close']
-        dataframe['ha_high'] = heikinashi['high']
-        dataframe['ha_low'] = heikinashi['low']
-        """
 
         return dataframe
 
     def populate_buy_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        """
-        Based on TA indicators, populates the buy signal for the given dataframe
-        :param dataframe: DataFrame
-        :param metadata: Additional information, like the currently traded pair
-        :return: DataFrame with buy column
-        ##### Storing Shit
+        conditions = []
+        # GUARDS AND TRENDS
+        if self.buy_rsi_enabled.value:
+            conditions.append(dataframe['rsi'] > self.buy_rsi.value)
 
-        ## (dataframe['rsi'] < 30) &
-        """
-        dataframe.loc[
-            (
-                    #(dataframe['rsi'] > 29) &
-                    (dataframe['close'] < dataframe['bb_lowerband2']) &
-                    (dataframe['volume'] > 0)
-            ),
-            'buy'] = 1
+        # TRIGGERS
+        if self.buy_trigger.value == 'bb_one':
+            conditions.append(dataframe['close'] < dataframe['bb_lowerband'])
 
-        # Print the Analyzed pair
-        print(f"result for {metadata['pair']}")
+        if self.buy_trigger.value == 'bb_two':
+            conditions.append(dataframe['close'] < dataframe['bb_lowerband2'])
 
-        # Inspect the last 5 rows
-        print(dataframe.tail())
+        if self.buy_trigger.value == 'bb_three':
+            conditions.append(dataframe['close'] < dataframe['bb_lowerband3'])
+
+        # Check that volume is not 0
+        conditions.append(dataframe['volume'] > 0)
+
+        if conditions:
+            dataframe.loc[
+                reduce(lambda x, y: x & y, conditions),
+                'buy'] = 1
 
         return dataframe
 
     def populate_sell_trend(self, dataframe: DataFrame, metadata: dict) -> DataFrame:
-        """
-        Based on TA indicators, populates the sell signal for the given dataframe
-        :param dataframe: DataFrame
-        :param metadata: Additional information, like the currently traded pair
-        :return: DataFrame with buy column
-        """
-        dataframe.loc[
-            (
-                    #(dataframe['rsi'] > 70) &
-                    (dataframe['sar'] > dataframe['close']) &
-                    (dataframe["close"] > dataframe['bb_lowerband1']) &
-                    (dataframe['volume'] > 0)
-            ),
-            'sell'] = 1
+        conditions = []
+        # GUARDS AND TRENDS
+        if self.sell_rsi_enabled.value:
+            conditions.append(dataframe['rsi'] > self.sell_rsi.value)
+
+        # TRIGGERS
+
+        if self.sell_trigger.value == 'sarBoi':
+            conditions.append(dataframe['sar'] > dataframe['close'])
+
+
+        if self.buy_trigger.value == 'bb_low_sell':
+            conditions.append(dataframe['close'] > dataframe['bb_lowerband'])
+
+        if self.buy_trigger.value == 'bb_mid_sell':
+            conditions.append(dataframe['close'] > dataframe['bb_middleband'])
+
+        if self.buy_trigger.value == 'bb_up_sell':
+            conditions.append(dataframe['close'] > dataframe['bb_upperband'])
+
+        # Check that volume is not 0
+        conditions.append(dataframe['volume'] > 0)
+
+        if conditions:
+            dataframe.loc[
+                reduce(lambda x, y: x & y, conditions),
+                'sell'] = 1
+
         return dataframe
