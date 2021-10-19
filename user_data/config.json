@@ -1,12 +1,12 @@
 
 {
-    "max_open_trades": 20,
+    "max_open_trades": 30,
     "stake_currency": "USDT",
     "stake_amount": "unlimited",
     "tradable_balance_ratio": 0.99,
     "fiat_display_currency": "USD",
     "dry_run_wallet": 5300,
-    "timeframe": "15m",
+    "timeframe": "1h",
     "dry_run": true,
     "cancel_open_orders_on_exit": false,
     "unfilledtimeout": {
@@ -31,8 +31,8 @@
     },
     "exchange": {
         "name": "binance",
-        "key": "YJm5J88OmTGaQc3jSKoU1TGqcYkzs0SJWCzZM54rI7Ux8yqVST6CtK1P97XxA0Na",
-        "secret": "onna8dPpqEGDjF8v4CA5waylYpargEw08duUJLO6xw7dadMLbChehkgP1ZGWFksc",
+        "key": "",
+        "secret": "",
         "ccxt_config": {"enableRateLimit": true},
         "ccxt_async_config": {
             "enableRateLimit": true,
@@ -74,12 +74,12 @@
         "chat_id": "528209470"
     },
     "api_server": {
-        "enabled": true,
-        "listen_ip_address": "127.0.0.1",
+        "enabled": false,
+        "listen_ip_address": "",
         "listen_port": 8080,
         "verbosity": "error",
         "enable_openapi": false,
-        "jwt_secret_key": "6444bc41d988df4b88932f79b407434a74be249b27a44bf9a92d4dc7bb398170",
+        "jwt_secret_key": "",
         "CORS_origins": [],
         "username": "freqtrader",
         "password": ""
