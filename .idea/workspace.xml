@@ -1,11 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="d6e7e86c-c5a2-4dae-b9b0-e2ea6cf67352" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/user_data/config.json" beforeDir="false" afterPath="$PROJECT_DIR$/user_data/config.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user_data/strategies/strat_online.json" beforeDir="false" afterPath="$PROJECT_DIR$/user_data/strategies/strat_online.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/user_data/strategies/strat_online.py" beforeDir="false" afterPath="$PROJECT_DIR$/user_data/strategies/strat_online.py" afterDir="false" />
-    </list>
+    <list default="true" id="d6e7e86c-c5a2-4dae-b9b0-e2ea6cf67352" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
