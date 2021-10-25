@@ -14,7 +14,7 @@ class GodCard(IStrategy):
 
     INTERFACE_VERSION = 2
 
-    timeframe = '5m'
+    timeframe = '15m'
     # Define the parameter spaces
     cooldown_lookback = IntParameter(2, 48, default=5, space="protection", optimize=True)
     stop_duration = IntParameter(12, 200, default=5, space="protection", optimize=True)
