@@ -2,36 +2,36 @@
   "strategy_name": "GodCard",
   "params": {
     "buy": {
-      "buy_rsi": 79,
+      "buy_rsi": 42,
       "buy_rsi_enabled": false,
-      "buy_trigger": "bb_one"
+      "buy_trigger": "bb_two"
     },
     "sell": {
-      "sell_rsi": 29,
+      "sell_rsi": 36,
       "sell_rsi_enabled": true,
-      "sell_trigger": "bb_low_sell"
+      "sell_trigger": "sarBoi"
     },
     "protection": {
       "cooldown_lookback": 0,
-      "stop_duration": 59,
+      "stop_duration": 69,
       "use_stop_protection": true
     },
     "roi": {
-      "0": 0.21200000000000002,
-      "113": 0.114,
-      "290": 0.019,
-      "543": 0
+      "0": 0.189,
+      "109": 0.135,
+      "160": 0.048,
+      "457": 0
     },
     "stoploss": {
-      "stoploss": -0.25
+      "stoploss": -0.263
     },
     "trailing": {
       "trailing_stop": true,
-      "trailing_stop_positive": 0.056,
-      "trailing_stop_positive_offset": 0.059000000000000004,
-      "trailing_only_offset_is_reached": false
+      "trailing_stop_positive": 0.176,
+      "trailing_stop_positive_offset": 0.255,
+      "trailing_only_offset_is_reached": true
     }
   },
   "ft_stratparam_v": 1,
-  "export_time": "2021-10-24 17:20:32.423118+00:00"
+  "export_time": "2021-11-01 20:30:38.548926+00:00"
 }
