@@ -66,41 +66,41 @@ class GodCard(IStrategy):
 
     # Buy hyperspace params:
     buy_params = {
-        "buy_rsi": 17,
+        "buy_rsi": 56,
         "buy_rsi_enabled": False,
-        "buy_trigger": "bb_one",
+        "buy_trigger": "bb_two",
     }
 
     # Sell hyperspace params:
     sell_params = {
-        "sell_rsi": 29,
+        "sell_rsi": 14,
         "sell_rsi_enabled": True,
-        "sell_trigger": "bb_low_sell",
+        "sell_trigger": "bb_up_sell",
     }
 
     # Protection hyperspace params:
     protection_params = {
-        "cooldown_lookback": 1,
-        "stop_duration": 155,
-        "use_stop_protection": False,
+        "cooldown_lookback": 0,
+        "stop_duration": 198,
+        "use_stop_protection": True,
     }
 
     # ROI table:
     minimal_roi = {
-        "0": 0.284,
-        "48": 0.034,
-        "150": 0.015,
-        "406": 0
+        "0": 0.326,
+        "102": 0.079,
+        "277": 0.031,
+        "543": 0
     }
 
     # Stoploss:
-    stoploss = -0.337
+    stoploss = -0.273
 
     # Trailing stop:
     trailing_stop = True
-    trailing_stop_positive = 0.06
-    trailing_stop_positive_offset = 0.16
-    trailing_only_offset_is_reached = True
+    trailing_stop_positive = 0.264
+    trailing_stop_positive_offset = 0.329
+    trailing_only_offset_is_reached = False
 
     def informative_pairs(self):
 
